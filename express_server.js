@@ -52,3 +52,8 @@ app.get("/hello", (req, res) => {
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
 });
+
+// generates a random alphanumeric string of length 16
+function generateRandomString(){
+  return Math.random().toString(36).substr(2,16);
+}
