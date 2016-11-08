@@ -4,6 +4,10 @@
   <title>TinyApp</title>
 </head>
 <body>
+  <header>
+    <% include ./partials/_header.ejs %>
+  </header>
+
   <ul>
       <% Object.keys(urls).forEach((key) => { %>
       <li> <%= key %> - <%= urls[key] %> </li>
