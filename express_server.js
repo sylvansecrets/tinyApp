@@ -18,8 +18,12 @@ app.get("/urls", (req, res) => {
 });
 
 app.get("/urls/:short", (req, res) => {
-  let long = urlDatabase.short;
-  res.render("urls_show", {short: long});
+  short = req.params.short;
+  if (urlDatabase[short]){
+    res.render("urls_show", {shortened: short, original: urlDatabase[short] });
+  }  else {
+    res.end("That url is not available")
+  }
 });
 
 
@@ -30,7 +34,6 @@ app.get("/urls.json", (req, res) => {
 app.get("/hello", (req, res) => {
   res.end("<html><body>Hello <b>World</b></body></html>\n");
 });
-
 
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
