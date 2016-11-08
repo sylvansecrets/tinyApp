@@ -1,0 +1,15 @@
+{
+  "name": "tiny_app",
+  "version": "1.0.0",
+  "description": "minimally functioning url shortener",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "ejs": "^2.5.2",
+    "express": "^4.14.0"
+  }
+}
