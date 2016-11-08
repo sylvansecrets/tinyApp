@@ -5,7 +5,7 @@ const PORT = process.env.PORT || 8080;
 
 app.set("view engine", "ejs");
 
-app.use(bodyParser.urlencoded({extended: true})
+app.use(bodyParser.urlencoded({extended: true}));
 
 var urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
@@ -20,6 +20,10 @@ app.get("/urls", (req, res) => {
   res.render("urls_index", {urls: urlDatabase});
 });
 
+app.get("/urls/new", (req, res) => {
+  res.render("urls_new");
+})
+
 app.get("/urls/:short", (req, res) => {
   short = req.params.short;
   if (urlDatabase[short]){
@@ -28,6 +32,13 @@ app.get("/urls/:short", (req, res) => {
     res.end("That url is not available")
   }
 });
+
+
+
+app.post("/urls", (req, res) => {
+  console.log(req.body);
+  res.send("Ok");
+})
 
 
 app.get("/urls.json", (req, res) => {
