@@ -11,8 +11,9 @@
   <ul>
       <% Object.keys(urls).forEach((key) => { %>
       <li>
-        <%= key %> - <%= urls[key] %>
-        <form action=<%= `/urls/${key}/delete` %> method="POST" margin=30px>
+        <%= key %> --> <a href = <%= urls[key] %>> <%= urls[key] %> </a>
+        <a href=<%= `/urls/${key}` %> > Edit </a>
+        <form action=<%= `/urls/${key}/delete` %> method="POST" style="float:inline">
           <button type="submit"> Delete </button>
         </form>
       </li>
