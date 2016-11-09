@@ -80,7 +80,7 @@ app.post("/login", (req, res) => {
 
 app.post("/logout", (req, res) => {
   req.session = null;
-  res.redirect("/urls");
+  res.redirect("/");
 });
 
 app.get("/register", (req, res) => {
@@ -112,6 +112,15 @@ app.post("/register", (req, res) => {
   }
 });
 
+app.use("/", (req, res, next) => {
+  console.log(req.session.user_id)
+  if(req.session.user_id){
+    next();
+  } else {
+    res.redirect("/");
+  }
+});
+
 // the /urls page shows the entire database
 app.get("/urls", (req, res) => {
   res.render("urls_index", {urls: urlDatabase});
@@ -137,7 +146,7 @@ app.post("/urls", (req, res) => {
   // append to urlDatabase
   // if not logged in, redirect to login page
   let id = req.session.user_id;
-  if (Object.keys(usersDatabase).indexOf(id) >= 0){
+  if (Object.keys(usersDatabase).indexOf(id) >= 0 ){
     let rand = generateRandomString();
     urlDatabase[rand] = req.body.longURL;
     res.redirect(`urls/${rand}`);
@@ -151,7 +160,7 @@ app.post("/urls", (req, res) => {
 
 app.post("/urls/:id/delete", (req, res) => {
   delete(urlDatabase[req.params.id]);
-  res.redirect("/urls");
+  res.redirect("/");
 });
 
 // replaces the longURL with a different one
@@ -171,6 +180,8 @@ app.get("/u/:shortURL", (req,res) => {
     res.end("That url is not available")
   }
 });
+
+
 
 // returns the .json of the urlDatabase
 app.get("/urls.json", (req, res) => {
