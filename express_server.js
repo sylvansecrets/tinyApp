@@ -1,4 +1,4 @@
-"use strict";
+// "use strict";
 
 const express = require("express");
 const app = express();
@@ -35,17 +35,13 @@ app.use(function(req, res, next) {
   next();
 })
 
+
 // returns the root
 // at the moment empty
 app.get("/", (req, res) => {
   res.end("Hello!");
 });
 
-// app.post("/login", (req, res) => {
-//   let username = req.body.login;
-//   res.cookie("username", username, {maxAge: 86400000 });
-//   res.redirect("/urls");
-// });
 app.get("/login", (req, res) => {
   res.render("login", {attempt: false});
 })
@@ -164,9 +160,4 @@ app.listen(PORT, () => {
 // generates a random alphanumeric string of length 16
 function generateRandomString(){
   return Math.random().toString(36).substr(2,6);
-}
-
-function universalPad(obj){
-  return Object.assign({},universal,universalPad);
-
 }
