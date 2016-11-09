@@ -56,6 +56,10 @@ app.get("/login/failed", (req, res) => {
   res.render("login", {attempt: true});
 })
 
+app.get("/login/required", (req, res) => {
+  res.redirect("/login");
+})
+
 app.post("/login", (req, res) => {
   if (Object.keys(usersDatabase).length === 0) {
     res.redirect("/login/failed")
@@ -130,9 +134,19 @@ app.get("/urls/:shortURL", (req, res) => {
 
 // adds a key: value pair to urlDatabase
 app.post("/urls", (req, res) => {
-  let rand = generateRandomString()
-  urlDatabase[rand] = req.body.longURL;
-  res.redirect(`urls/${rand}`);
+  // append to urlDatabase
+  // if not logged in, redirect to login page
+  let id = req.session.user_id;
+  if (Object.keys(usersDatabase).indexOf(id) >= 0){
+    let rand = generateRandomString();
+    urlDatabase[rand] = req.body.longURL;
+    res.redirect(`urls/${rand}`);
+  } else {
+    res.redirect("/login/required");
+  }
+  // let rand = generateRandomString()
+  // urlDatabase[rand] = req.body.longURL;
+
 });
 
 app.post("/urls/:id/delete", (req, res) => {
