@@ -31,7 +31,7 @@ app.get("/urls", (req, res) => {
 // returns the form for adding a new shortened url
 app.get("/urls/new", (req, res) => {
   res.render("urls_new");
-})
+});
 
 // retrieves the particular key: value pair from urlDatabase
 app.get("/urls/:shortURL", (req, res) => {
@@ -49,13 +49,20 @@ app.post("/urls", (req, res) => {
   let rand = generateRandomString()
   urlDatabase[rand] = req.body.longURL;
   res.redirect(`http://localhost:8080/urls/${rand}`);
-})
+});
 
 app.post("/urls/:id/delete", (req, res) => {
   delete(urlDatabase[req.params.id]);
   console.log(urlDatabase);
   res.redirect("/urls");
-})
+});
+
+// replaces the longURL with a different one
+// then redirects to the /urls page
+app.post("/urls/:id/replace", (req, res) => {
+  urlDatabase[req.params.id] = req.body.longURL;
+  res.redirect("/urls");
+});
 
 // redirects to the longURL previously entered
 app.get("/u/:shortURL", (req,res) => {
@@ -66,7 +73,7 @@ app.get("/u/:shortURL", (req,res) => {
   }  else {
     res.end("That url is not available")
   }
-})
+});
 
 // returns the .json of the urlDatabase
 app.get("/urls.json", (req, res) => {
