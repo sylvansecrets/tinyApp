@@ -1,4 +1,4 @@
-// "use strict";
+"use strict";
 
 const express = require("express");
 const app = express();
@@ -176,11 +176,11 @@ app.post("/urls/:id/replace", (req, res) => {
 });
 
 // retrieves the particular key: value pair from urlDatabase
+// allows for editing of links
 app.get("/urls/:shortURL", (req, res) => {
   let shortURL = req.params.shortURL;
-  console.log(req.session.user_id, shortURL);
-  console.log(urlDatabase)
-  if (urlDatabase[req.session.user_id][shortURL]){
+  let id = req.session.user_id
+  if (urlExist(id, shortURL)){
     res.render("urls_show", {shortened: shortURL, original: urlDatabase[shortURL] });
   }  else {
     res.end("That url is not available")
@@ -217,5 +217,16 @@ function addURL(id, shortURL, longURL){
 }
 
 function deleteURL(id, shortURL){
-  delete urlDatabase[id][shortURL];
+  // if (urlDatabase[id]){
+  //   if (Object.keys(urlDatabase[id]).indexOf(shortURL) >= 0){
+  //     delete urlDatabase[id][shortURL];
+  //   }
+  // }
+  if (urlExist(id, shortURL)){
+    delete urlDatabase[id][shortURL];
+  }
+}
+
+function urlExist(id, shortURL){
+  return urlDatabase[id] && Object.keys(urlDatabase[id]).indexOf(shortURL) >= 0;
 }
