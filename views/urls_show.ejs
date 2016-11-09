@@ -10,7 +10,7 @@
   <ul>
     <li>
       <%= shortened %> : <%= original %>
-      <form action=<%= `/urls/${shortened}/replace` %> method="POST" style="margin:30px;">
+      <form action=<%= `/urls/${shortened}/replace?_method=PUT` %> method="POST" style="margin:30px;">
         <label for="longURL">Update the URL:</label>
         <input id="longURL" type="text" name="longURL" placeholder="http://" style="width: 300px">
         <input type="submit" value="Submit">
