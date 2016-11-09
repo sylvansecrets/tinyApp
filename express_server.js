@@ -94,6 +94,7 @@ app.post("/register", (req, res) => {
       email: req.body.email,
       password: bcrypt.hashSync(req.body.password, saltRounds)
     }
+    console.log(usersDatabase);
     res.cookie("user_id", randID);
     res.redirect("/urls");
   } else {
