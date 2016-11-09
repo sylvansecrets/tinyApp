@@ -112,6 +112,19 @@ app.post("/register", (req, res) => {
   }
 });
 
+// retrieves the particular key: value pair from urlDatabase
+app.get("/urls/:shortURL", (req, res) => {
+  let shortURL = req.params.shortURL;
+  if (urlDatabase[shortURL]){
+    res.render("urls_show", {shortened: shortURL, original: urlDatabase[shortURL] });
+  }  else {
+    res.end("That url is not available")
+  }
+});
+
+
+// ---------------LOGIN REQUIRED FEATURES-----------------------
+
 app.use("/", (req, res, next) => {
   console.log(req.session.user_id)
   if(req.session.user_id){
@@ -131,15 +144,7 @@ app.get("/urls/new", (req, res) => {
   res.render("urls_new");
 });
 
-// retrieves the particular key: value pair from urlDatabase
-app.get("/urls/:shortURL", (req, res) => {
-  let shortURL = req.params.shortURL;
-  if (urlDatabase[shortURL]){
-    res.render("urls_show", {shortened: shortURL, original: urlDatabase[shortURL] });
-  }  else {
-    res.end("That url is not available")
-  }
-});
+
 
 // adds a key: value pair to urlDatabase
 app.post("/urls", (req, res) => {
