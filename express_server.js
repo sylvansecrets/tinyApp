@@ -3,12 +3,11 @@
 const express = require("express");
 const app = express();
 const bodyParser = require("body-parser");
-// const cookieParser = require('cookie-parser')
 const cookieSession = require('cookie-session');
 const PORT = process.env.PORT || 8080;
 const bcrypt = require('bcrypt');
 const saltRounds = 10;
-
+const methodOverride = require('method-override');
 
 // sets the view engine to ejs
 app.set("view engine", "ejs");
@@ -22,6 +21,7 @@ app.use(cookieSession({
   secret: "confusion"
 }));
 
+app.use(methodOverride('_method'));
 // urlDatabase is the in-memory database
 // in the format
 // id
@@ -162,16 +162,17 @@ app.post("/urls", (req, res) => {
   res.redirect(`urls/${rand}`);
 });
 
-app.post("/urls/:shortURL/delete", (req, res) => {
+app.delete("/urls/:shortURL/delete", (req, res) => {
+  console.log("attempting to delete", req.params.shortURL)
   let shortURL = req.params.shortURL;
-  deleteURL(req.session.id, shortURL);
+  deleteURL(req.session.user_id, shortURL);
   res.redirect("/urls");
 });
 
 // replaces the longURL with a different one
 // then redirects to the /urls page
-app.post("/urls/:id/replace", (req, res) => {
-  urlDatabase[req.params.id] = req.body.longURL;
+app.post("/urls/:shortURL/replace", (req, res) => {
+  replaceURL(req.session.user_id, req.params.shortURL, req.body.longURL);
   res.redirect("/urls");
 });
 
@@ -187,6 +188,10 @@ app.get("/urls/:shortURL", (req, res) => {
   }
 });
 
+// app.delete("/urls/:id/delete", (req, res) => {
+//   res.end("Success");
+// });
+
 // returns the .json of the urlDatabase
 app.get("/urls.json", (req, res) => {
   res.json(displayURL(req.session.user_id));
@@ -196,6 +201,7 @@ app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
 });
 
+//--------------------------helper functions ---------------
 // generates a random alphanumeric string of length 16
 function generateRandomString(){
   return Math.random().toString(36).substr(2,6);
@@ -217,16 +223,19 @@ function addURL(id, shortURL, longURL){
 }
 
 function deleteURL(id, shortURL){
-  // if (urlDatabase[id]){
-  //   if (Object.keys(urlDatabase[id]).indexOf(shortURL) >= 0){
-  //     delete urlDatabase[id][shortURL];
-  //   }
-  // }
   if (urlExist(id, shortURL)){
+    console.log(urlDatabase);
     delete urlDatabase[id][shortURL];
+    console.log(urlDatabase);
   }
 }
 
+function replaceURL(id, shortURL, longURL){
+  if (urlExist(id, shortURL)){
+    urlDatabase[id][shortURL] = longURL;
+  }
+}
 function urlExist(id, shortURL){
+  console.log("exist check", id, shortURL, urlDatabase);
   return urlDatabase[id] && Object.keys(urlDatabase[id]).indexOf(shortURL) >= 0;
 }
