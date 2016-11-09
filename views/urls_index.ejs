@@ -10,8 +10,14 @@
 
   <ul>
       <% Object.keys(urls).forEach((key) => { %>
-      <li> <%= key %> - <%= urls[key] %> </li>
+      <li>
+        <%= key %> - <%= urls[key] %>
+        <form action=<%= `/url/${key}/delete` %> method="POST" margin=30px>
+          <button type="submit"> Delete </button>
+        </form>
+      </li>
     <% }); %>
   </ul>
+
 </body>
 </html>
