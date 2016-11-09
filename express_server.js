@@ -3,7 +3,8 @@
 const express = require("express");
 const app = express();
 const bodyParser = require("body-parser");
-const cookieParser = require('cookie-parser')
+// const cookieParser = require('cookie-parser')
+const cookieSession = require('cookie-session');
 const PORT = process.env.PORT || 8080;
 const bcrypt = require('bcrypt');
 const saltRounds = 10;
@@ -16,7 +17,10 @@ app.set("view engine", "ejs");
 app.use(bodyParser.urlencoded({extended: true}));
 
 // use the cookie-parser to parse cookies
-app.use(cookieParser());
+app.use(cookieSession({
+  name: 'tinyAppSession',
+  secret: "confusion"
+}));
 
 // urlDatabase is the in-memory database
 var urlDatabase = {
@@ -28,7 +32,7 @@ const usersDatabase = {};
 
 //
 app.use(function(req, res, next) {
-  let id = req.cookies.user_id;
+  let id = req.session.user_id;
   if (Object.keys(usersDatabase).indexOf(id) >= 0){
     res.locals.user = usersDatabase[id]["email"];
   } else {
@@ -61,7 +65,7 @@ app.post("/login", (req, res) => {
       // let password = usersDatabase[id]["password"];
       let passwordMatch = bcrypt.compareSync(req.body.password, usersDatabase[id]["password"])
       if (email == req.body.email && passwordMatch){
-        res.cookie("user_id", id, {maxAge: 86400000});
+        req.session.user_id = id //("user_id", id, {maxAge: 86400000});
         res.redirect("/urls");
       } else {
         res.redirect("/login/failed");
@@ -71,8 +75,8 @@ app.post("/login", (req, res) => {
 });
 
 app.post("/logout", (req, res) => {
-  res.clearCookie("user_id");
-  res.redirect("urls");
+  req.session = null;
+  res.redirect("/urls");
 });
 
 app.get("/register", (req, res) => {
@@ -82,8 +86,10 @@ app.get("/register", (req, res) => {
 app.post("/register", (req, res) => {
   let randID = Math.random().toString(10).substr(2,10);
   let tempEmail = [];
-  for (var id in usersDatabase){
-    tempEmail.push(usersDatabase[id][email]);
+  if (Object.keys(usersDatabase).length > 0){
+    for (var id in usersDatabase){
+      tempEmail.push(usersDatabase[id][email]);
+    }
   }
   if (!req.body.email && !req.body.password){
     res.status(400).send({ error: "please fill in both the email and password fields"});
@@ -95,7 +101,7 @@ app.post("/register", (req, res) => {
       password: bcrypt.hashSync(req.body.password, saltRounds)
     }
     console.log(usersDatabase);
-    res.cookie("user_id", randID);
+    req.session.user_id = randID;
     res.redirect("/urls");
   } else {
     res.status(400).send({ error: "conflict with existing email"});
