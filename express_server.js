@@ -43,7 +43,12 @@ app.post("/login", (req, res) => {
   let username = req.body.login;
   res.cookie("username", username, {maxAge: 86400000 });
   console.log(req.cookie);
-  res.redirect("/urls")
+  res.redirect("/urls");
+})
+
+app.post("/logout", (req, res) => {
+  res.clearCookie("username");
+  res.redirect("urls");
 })
 
 // the /urls page shows the entire database
