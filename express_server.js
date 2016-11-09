@@ -35,22 +35,44 @@ app.use(function(req, res, next) {
   next();
 })
 
-
-
 // returns the root
 // at the moment empty
 app.get("/", (req, res) => {
   res.end("Hello!");
 });
 
+// app.post("/login", (req, res) => {
+//   let username = req.body.login;
+//   res.cookie("username", username, {maxAge: 86400000 });
+//   res.redirect("/urls");
+// });
+app.get("/login", (req, res) => {
+  res.render("login", {attempt: false});
+})
+
+app.get("/login/failed", (req, res) => {
+  res.render("login", {attempt: true});
+})
+
 app.post("/login", (req, res) => {
-  let username = req.body.login;
-  res.cookie("username", username, {maxAge: 86400000 });
-  res.redirect("/urls");
+  if (Object.keys(usersDatabase).length === 0) {
+    res.redirect("/login/failed")
+  } else {
+    for (var id in usersDatabase){
+      let email = usersDatabase[id]["email"];
+      let password = usersDatabase[id]["password"];
+      if (email == req.body.email && password == req.body.password){
+        res.cookie("user_id", id, {maxAge: 86400000});
+        res.redirect("/urls");
+      } else {
+        res.redirect("/login/failed");
+      }
+    }
+  }
 });
 
 app.post("/logout", (req, res) => {
-  res.clearCookie("username");
+  res.clearCookie("user_id");
   res.redirect("urls");
 });
 
@@ -82,7 +104,6 @@ app.post("/register", (req, res) => {
 
 // the /urls page shows the entire database
 app.get("/urls", (req, res) => {
-  console.log(usersDatabase);
   res.render("urls_index", {urls: urlDatabase});
 });
 
