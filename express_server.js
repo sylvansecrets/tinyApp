@@ -44,12 +44,16 @@ app.post("/login", (req, res) => {
   res.cookie("username", username, {maxAge: 86400000 });
   console.log(req.cookie);
   res.redirect("/urls");
-})
+});
 
 app.post("/logout", (req, res) => {
   res.clearCookie("username");
   res.redirect("urls");
-})
+});
+
+app.get("/register", (req, res) => {
+  res.render("register", {})
+});
 
 // the /urls page shows the entire database
 app.get("/urls", (req, res) => {
