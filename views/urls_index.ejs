@@ -12,7 +12,7 @@
       <% Object.keys(urls).forEach((key) => { %>
       <li>
         <%= key %> - <%= urls[key] %>
-        <form action=<%= `/url/${key}/delete` %> method="POST" margin=30px>
+        <form action=<%= `/urls/${key}/delete` %> method="POST" margin=30px>
           <button type="submit"> Delete </button>
         </form>
       </li>
