@@ -23,6 +23,8 @@ app.use(cookieSession({
 }));
 
 // urlDatabase is the in-memory database
+// in the format
+// id
 var urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
   "9sm5xK": "http://www.google.com"
@@ -112,69 +114,6 @@ app.post("/register", (req, res) => {
   }
 });
 
-// retrieves the particular key: value pair from urlDatabase
-app.get("/urls/:shortURL", (req, res) => {
-  let shortURL = req.params.shortURL;
-  if (urlDatabase[shortURL]){
-    res.render("urls_show", {shortened: shortURL, original: urlDatabase[shortURL] });
-  }  else {
-    res.end("That url is not available")
-  }
-});
-
-
-// ---------------LOGIN REQUIRED FEATURES-----------------------
-
-app.use("/", (req, res, next) => {
-  console.log(req.session.user_id)
-  if(req.session.user_id){
-    next();
-  } else {
-    res.redirect("/");
-  }
-});
-
-// the /urls page shows the entire database
-app.get("/urls", (req, res) => {
-  res.render("urls_index", {urls: urlDatabase});
-});
-
-// returns the form for adding a new shortened url
-app.get("/urls/new", (req, res) => {
-  res.render("urls_new");
-});
-
-
-
-// adds a key: value pair to urlDatabase
-app.post("/urls", (req, res) => {
-  // append to urlDatabase
-  // if not logged in, redirect to login page
-  let id = req.session.user_id;
-  if (Object.keys(usersDatabase).indexOf(id) >= 0 ){
-    let rand = generateRandomString();
-    urlDatabase[rand] = req.body.longURL;
-    res.redirect(`urls/${rand}`);
-  } else {
-    res.redirect("/login/required");
-  }
-  // let rand = generateRandomString()
-  // urlDatabase[rand] = req.body.longURL;
-
-});
-
-app.post("/urls/:id/delete", (req, res) => {
-  delete(urlDatabase[req.params.id]);
-  res.redirect("/");
-});
-
-// replaces the longURL with a different one
-// then redirects to the /urls page
-app.post("/urls/:id/replace", (req, res) => {
-  urlDatabase[req.params.id] = req.body.longURL;
-  res.redirect("/urls");
-});
-
 // redirects to the longURL previously entered
 app.get("/u/:shortURL", (req,res) => {
   let shortURL = req.params.shortURL;
@@ -187,10 +126,70 @@ app.get("/u/:shortURL", (req,res) => {
 });
 
 
+// ---------------LOGIN REQUIRED FEATURES-----------------------
+
+app.use("/", (req, res, next) => {
+  if (Object.keys(usersDatabase).indexOf(req.session.user_id) >= 0){
+    next();
+  } else {
+    res.redirect("/");
+  }
+});
+
+// the /urls page shows the entire database
+app.get("/urls", (req, res) => {
+  res.render("urls_index", {urls: displayURL(req.session.user_id)});
+});
+
+// returns the form for adding a new shortened url
+app.get("/urls/new", (req, res) => {
+  res.render("urls_new");
+});
+
+
+// adds a key: value pair to urlDatabase
+app.post("/urls", (req, res) => {
+  // let id = req.session.user_id;
+  // if (Object.keys(usersDatabase).indexOf(id) >= 0 ){
+  //   let rand = generateRandomString();
+  //   urlDatabase[rand] = req.body.longURL;
+  //   res.redirect(`urls/${rand}`);
+  // } else {
+  //   res.redirect("/login/required");
+  // }
+  let rand = generateRandomString();
+  addURL(req.session.user_id, rand, req.body.longURL);
+  res.redirect(`urls/${rand}`);
+});
+
+app.post("/urls/:shortURL/delete", (req, res) => {
+  let shortURL = req.params.shortURL;
+  deleteURL(req.session.id, shortURL);
+  res.redirect("/urls");
+});
+
+// replaces the longURL with a different one
+// then redirects to the /urls page
+app.post("/urls/:id/replace", (req, res) => {
+  urlDatabase[req.params.id] = req.body.longURL;
+  res.redirect("/urls");
+});
+
+// retrieves the particular key: value pair from urlDatabase
+app.get("/urls/:shortURL", (req, res) => {
+  let shortURL = req.params.shortURL;
+  console.log(req.session.user_id, shortURL);
+  console.log(urlDatabase)
+  if (urlDatabase[req.session.user_id][shortURL]){
+    res.render("urls_show", {shortened: shortURL, original: urlDatabase[shortURL] });
+  }  else {
+    res.end("That url is not available")
+  }
+});
 
 // returns the .json of the urlDatabase
 app.get("/urls.json", (req, res) => {
-  res.json(urlDatabase);
+  res.json(displayURL(req.session.user_id));
 });
 
 app.listen(PORT, () => {
@@ -200,4 +199,23 @@ app.listen(PORT, () => {
 // generates a random alphanumeric string of length 16
 function generateRandomString(){
   return Math.random().toString(36).substr(2,6);
+}
+
+function displayURL(id){
+  if (urlDatabase[id]){
+    return urlDatabase[id];
+  } else {
+    return {};
+  }
+};
+
+function addURL(id, shortURL, longURL){
+  if (!urlDatabase[id]){
+    urlDatabase[id] = {};
+  }
+  urlDatabase[id][shortURL] = longURL;
+}
+
+function deleteURL(id, shortURL){
+  delete urlDatabase[id][shortURL];
 }
