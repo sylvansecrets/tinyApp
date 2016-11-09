@@ -3,13 +3,29 @@
 const express = require("express");
 const app = express();
 const bodyParser = require("body-parser");
+const cookieParser = require('cookie-parser')
 const PORT = process.env.PORT || 8080;
+const universal = {};
 
 // sets the view engine to ejs
 app.set("view engine", "ejs");
 
 // sets the body parser to body-parser
 app.use(bodyParser.urlencoded({extended: true}));
+
+// use the cookie-parser to parse cookies
+app.use(cookieParser());
+
+//
+app.use(function(req, res, next) {
+  if (req.cookies){
+    res.locals.user = req.cookies.username;
+  } else {
+    res.locals.user = null;
+  }
+  console.log(res.locals.user);
+  next();
+})
 
 // urlDatabase is the in-memory database
 var urlDatabase = {
@@ -22,6 +38,13 @@ var urlDatabase = {
 app.get("/", (req, res) => {
   res.end("Hello!");
 });
+
+app.post("/login", (req, res) => {
+  let username = req.body.login;
+  res.cookie("username", username, {maxAge: 86400000 });
+  console.log(req.cookie);
+  res.redirect("/urls")
+})
 
 // the /urls page shows the entire database
 app.get("/urls", (req, res) => {
@@ -48,7 +71,7 @@ app.post("/urls", (req, res) => {
   console.log(req.body)
   let rand = generateRandomString()
   urlDatabase[rand] = req.body.longURL;
-  res.redirect(`http://localhost:8080/urls/${rand}`);
+  res.redirect(`urls/${rand}`);
 });
 
 app.post("/urls/:id/delete", (req, res) => {
@@ -87,4 +110,9 @@ app.listen(PORT, () => {
 // generates a random alphanumeric string of length 16
 function generateRandomString(){
   return Math.random().toString(36).substr(2,6);
+}
+
+function universalPad(obj){
+  return Object.assign({},universal,universalPad);
+
 }
