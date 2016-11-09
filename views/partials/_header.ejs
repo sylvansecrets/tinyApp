@@ -4,11 +4,7 @@
     <button type="submit"> Log Out </button>
   </form>
   <% } else { %>
-    <form action="/login" method="POST" style="margin:30px;">
-      <label for="login">login with username</label>
-      <input id="login" type="text" name="login" placeholder="username" style="width: 300px">
-      <input type="submit" value="Register">
-    </form>
-    <a href="/register"> Register Here </a>
-
+    <a href="/login"> Login </a>
+    </br>
+    <a href="/register"> Register </a>
   <% } %>
