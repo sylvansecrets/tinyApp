@@ -16,22 +16,26 @@ app.use(bodyParser.urlencoded({extended: true}));
 // use the cookie-parser to parse cookies
 app.use(cookieParser());
 
-//
-app.use(function(req, res, next) {
-  if (req.cookies){
-    res.locals.user = req.cookies.username;
-  } else {
-    res.locals.user = null;
-  }
-  console.log(res.locals.user);
-  next();
-})
-
 // urlDatabase is the in-memory database
 var urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
   "9sm5xK": "http://www.google.com"
 };
+
+const usersDatabase = {};
+
+//
+app.use(function(req, res, next) {
+  let id = req.cookies.user_id;
+  if (Object.keys(usersDatabase).indexOf(id) >= 0){
+    res.locals.user = usersDatabase[id]["email"];
+  } else {
+    res.locals.user = null;
+  }
+  next();
+})
+
+
 
 // returns the root
 // at the moment empty
@@ -42,7 +46,6 @@ app.get("/", (req, res) => {
 app.post("/login", (req, res) => {
   let username = req.body.login;
   res.cookie("username", username, {maxAge: 86400000 });
-  console.log(req.cookie);
   res.redirect("/urls");
 });
 
@@ -55,8 +58,31 @@ app.get("/register", (req, res) => {
   res.render("register", {})
 });
 
+app.post("/register", (req, res) => {
+  let randID = Math.random().toString(10).substr(2,10);
+  let tempEmail = [];
+  for (var id in usersDatabase){
+    tempEmail.push(usersDatabase[id][email]);
+  }
+  if (!req.body.email && !req.body.password){
+    res.status(400).send({ error: "please fill in both the email and password fields"});
+  }
+  if (tempEmail.indexOf(req.body.email) < 0 && req.body.password){
+    usersDatabase[randID] = {
+      id: randID,
+      email: req.body.email,
+      password: req.body.password
+    }
+    res.cookie("user_id", randID);
+    res.redirect("/urls");
+  } else {
+    res.status(400).send({ error: "conflict with existing email"});
+  }
+});
+
 // the /urls page shows the entire database
 app.get("/urls", (req, res) => {
+  console.log(usersDatabase);
   res.render("urls_index", {urls: urlDatabase});
 });
 
@@ -77,7 +103,6 @@ app.get("/urls/:shortURL", (req, res) => {
 
 // adds a key: value pair to urlDatabase
 app.post("/urls", (req, res) => {
-  console.log(req.body)
   let rand = generateRandomString()
   urlDatabase[rand] = req.body.longURL;
   res.redirect(`urls/${rand}`);
@@ -85,7 +110,6 @@ app.post("/urls", (req, res) => {
 
 app.post("/urls/:id/delete", (req, res) => {
   delete(urlDatabase[req.params.id]);
-  console.log(urlDatabase);
   res.redirect("/urls");
 });
 
