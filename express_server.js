@@ -171,7 +171,7 @@ app.delete("/urls/:shortURL/delete", (req, res) => {
 
 // replaces the longURL with a different one
 // then redirects to the /urls page
-app.post("/urls/:shortURL/replace", (req, res) => {
+app.put("/urls/:shortURL/replace", (req, res) => {
   replaceURL(req.session.user_id, req.params.shortURL, req.body.longURL);
   res.redirect("/urls");
 });
