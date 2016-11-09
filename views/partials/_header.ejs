@@ -1,5 +1,8 @@
 <% if (user) { %>
   <p> logged in as <%= user %> </p>
+  <form action="/logout" method="POST" style="float:inline">
+    <button type="submit"> Log Out </button>
+  </form>
   <% } else { %>
     <form action="/login" method="POST" style="margin:30px;">
       <label for="login">login with username</label>
