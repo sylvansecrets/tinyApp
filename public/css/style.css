@@ -1,18 +1,108 @@
 body {
-  background-color: blue;
-  color: red;
+  background-color: #ffffff;
+  margin: 0;
+  padding: 0;
+  color: #222222;
+  font-family: sans-serif;
 }
 
-#sidenav {
+div#sidenav {
   float: left;
   width: 15%;
+  padding: 0 10px;
+  height: 80%;
 }
 
-header {
-  height: 15%;
+div#main {
+  float: left;
+  width: 70%;
+  padding: 10px 0px 0px 20px;
+}
+
+div#wrap {
   width: 100%;
 }
 
-#main {
-  float: left;
+div#logged_in {
+  float:left;
+  color: #555555;
+}
+
+div#topbutton {
+  float:right;
+  position: relative;
+}
+
+div#topbar {
+  float: top;
+  position: relative;
+  height: 70px;
+  width: 100%;
+  padding: 10px 0px;
+}
+
+a.button {
+  display: inline-block;
+  width: 60px;
+  height: 25px;
+  background: #eeeeee;
+  padding: 4px 0px 0px 0px;
+  text-align: center;
+  border-radius: 3px;
+  font-weight: bold;
+}
+
+a.button:link{
+  text-decoration: none;
+}
+
+a.button:visited{
+  text-decoration: none;
+  color: #333333;
+}
+
+a.button:hover{
+  color: #000000;
+}
+
+a.button:active{
+  color: hotpink;
+}
+
+button {
+  background-color: #eeeeee;
+  border-radius: 3px;
+  padding: 3px;
+  width: 70px;
+  height: 35px;
+  font-weight: bold;
+  border: none;
+  text-align: center;
+  display: inline-block;
+  font-size: 14px;
+
+
+}
+
+input[type=submit] {
+  padding: 5px 10px;
+  background: #eeeeee;
+  border-radious: 5px;
+  color: #222222;
+  font-weight: bold;
+}
+
+input[type=text], input[type=email], input[type=password]{
+  padding: 5px 10px;
+  border-radius: 5px;
+}
+
+html,body{
+  height:100%;
+}
+
+p.warning{
+  color: #ee2222;
+  padding-left: 20px;
+  font-size: 12px;
 }

@@ -1,6 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head></head>
+
+  <head>
+
+    <title>TinyApp</title>
+    <link rel="stylesheet" type="text/css" href="/css/style.css">
+
+  </head>
+
   <body style="font-size:20px; padding:50px;">
 
   <header>
@@ -13,7 +20,7 @@
 
   <div id="main">
 
-    <form action="/urls" method="POST" style="margin:150px;">
+    <form action="/urls" method="POST" style="margin: 20px;">
       <label for="longURL">Enter a URL:</label>
       <input id="longURL" type="text" name="longURL" placeholder="http://" style="width: 300px">
       <input type="submit" value="Submit">
@@ -21,7 +28,7 @@
 
     <div class = "failure">
       <% if (failure) { %>
-        <p> The entered address was not a valid http or https uri </p>
+        <p class="warning"> The entered address was not a valid http or https uri. </p>
       <% } %>
      </div>
 

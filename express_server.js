@@ -5,7 +5,7 @@ const app = express();
 const bodyParser = require("body-parser");
 const cookieSession = require('cookie-session');
 const cookieParser = require('cookie-parser');
-const PORT = process.env.PORT || 8080;
+const PORT = process.env.PORT || 3000;
 const bcrypt = require('bcrypt');
 const saltRounds = 10;
 const methodOverride = require('method-override');
@@ -25,8 +25,10 @@ app.use(cookieSession({
   secret: "confusion"
 }));
 
+// parse cookies for unique visitors
 app.use(cookieParser());
 
+// gives a unique visitor id as cookie
 app.use(function(req, res, next) {
   if (!req.cookies.visitor_id){
     res.cookie("visitor_id", generateRandomString(10));
@@ -34,6 +36,7 @@ app.use(function(req, res, next) {
   next();
 })
 
+// sets method overwrite
 app.use(methodOverride('_method'));
 
 // urlDatabase is the in-memory database
@@ -41,9 +44,12 @@ app.use(methodOverride('_method'));
 // id: {url:, visitors:{unique_id: times_visited}}
 var urlDatabase = {};
 
+// usersDatabase is an in-memory database
+// in the format
+// id: {id, shortURL: longURL, visitors: {visitor: {count, timestamp}}}
 const usersDatabase = {};
 
-//
+// sets the username to res.locals.user if logged in
 app.use(function(req, res, next) {
   let id = req.session.user_id;
   if (Object.keys(usersDatabase).indexOf(id) >= 0){
@@ -55,24 +61,26 @@ app.use(function(req, res, next) {
 })
 
 
-// returns the root
-// at the moment empty
+// returns the home page
 app.get("/", (req, res) => {
   res.render("home");
 });
 
+// handles GET calls to /login
+// attempt generates a warning message if true
 app.get("/login", (req, res) => {
-  res.render("login", {attempt: false});
+  res.render("login", {attempt: false, prompt: false});
 })
 
 app.get("/login/failed", (req, res) => {
-  res.render("login", {attempt: true});
+  res.render("login", {attempt: true, prompt: false});
 })
 
-app.get("/login/required", (req, res) => {
-  res.redirect("/login");
+app.get("/login/unauthorized", (req, res) => {
+  res.render("login", {attempt: false, prompt: true});
 })
 
+// Logs in a user
 app.post("/login", (req, res) => {
   if (Object.keys(usersDatabase).length === 0) {
     res.redirect("/login/failed")
@@ -90,11 +98,13 @@ app.post("/login", (req, res) => {
   }
 });
 
+// Logs out a user
 app.post("/logout", (req, res) => {
   req.session = null;
   res.redirect("/");
 });
 
+// Handles GET call to /register
 app.get("/register", (req, res) => {
   res.render("register", {})
 });
@@ -138,15 +148,16 @@ app.get("/u/:shortURL", (req,res) => {
 
 // ---------------LOGIN REQUIRED FEATURES-----------------------
 
+// redirects if the user is not logged in
 app.use("/", (req, res, next) => {
   if (Object.keys(usersDatabase).indexOf(req.session.user_id) >= 0){
     next();
   } else {
-    res.redirect("/");
+    res.status(401).redirect("/login/unauthorized");
   }
 });
 
-// the /urls page shows the entire database
+// the /urls page shows the urls the user has entered
 app.get("/urls", (req, res) => {
   res.render("urls_index", {urls: displayURL(req.session.user_id)});
 });
@@ -169,6 +180,7 @@ app.post("/urls", (req, res) => {
   }
 });
 
+// deletes a shortURL longURL pair
 app.delete("/urls/:shortURL/delete", (req, res) => {
   let shortURL = req.params.shortURL;
   deleteURL(req.session.user_id, shortURL);
@@ -184,7 +196,6 @@ app.put("/urls/:shortURL/replace", (req, res) => {
 
 //
 app.get("/urls/invalid", (req, res) => {
-  // res.redirect("/urls/new", {failure: true});
   res.render("urls_new", {failure: true});
 });
 
@@ -206,10 +217,6 @@ app.get("/urls/:shortURL", (req, res) => {
     res.end("That url is not available")
   }
 });
-
-// app.delete("/urls/:id/delete", (req, res) => {
-//   res.end("Success");
-// });
 
 // returns the .json of the urlDatabase
 app.get("/urls.json", (req, res) => {

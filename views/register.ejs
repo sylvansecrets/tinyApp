@@ -1,27 +1,34 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
+
   <title>TinyApp</title>
+  <link rel="stylesheet" type="text/css" href="/css/style.css">
+
 </head>
+
 <body>
   <header>
     <% include ./partials/_header.ejs %>
-    <h2> Register </h2>
   </header>
 
-  <div id="sidenav">
-    <% include ./partials/_sidenav_anon.ejs %>
-  </div>
+  <div id="wrap">
+    <div id="sidenav">
+      <% include ./partials/_sidenav_anon.ejs %>
+    </div>
 
-
-  <form action="/register" method="POST">
-    Email:
-    <input type="email" name="email">
-    Password:
-    <input type="password" name="password">
-    <input type="submit" value="Submit">
-  </form>
-
+    <div id="main">
+      <h3> Register </h3>
+        <form action="/register" method="POST">
+          Email:
+          <input type="email" name="email">
+          Password:
+          <input type="password" name="password">
+          <input type="submit" value="Submit">
+        </form>
+    </div>
+</div>
 
 
 </body>

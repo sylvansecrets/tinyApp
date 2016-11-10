@@ -1,29 +1,41 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+
   <title>TinyApp</title>
+  <link rel="stylesheet" type="text/css" href="/css/style.css">
+
 </head>
 <body>
   <header>
     <% include ./partials/_header.ejs %>
-    <h2> Login </h2>
   </header>
 
+<div id="wrap">
   <div id="sidenav">
     <% include ./partials/_sidenav_anon.ejs %>
   </div>
 
-  <form action="/login" method="POST">
-    Email:
-    <input type="email" name="email">
-    Password:
-    <input type="password" name="password">
-    <input type="submit" value="Submit">
-  </form>
-  <% if (attempt){ %>
-  <p> Incorrect email/password combination <p>
-  <% } %>
+  <div id="main">
+    <h3> Log In </h3>
 
+    <form action="/login" method="POST">
+      Email:
+      <input type="email" name="email">
+      Password:
+      <input type="password" name="password">
+      <input type="submit" value="Submit">
+    </form>
+    <% if (attempt){ %>
+    <p class="warning"> Incorrect email/password combination </p>
+    <% } %>
+
+    <% if (prompt){ %>
+    <p class="warning"> Please log in to access that page </p>
+    <% } %>
+
+  </div>
+</div>
 
 </body>
 </html>

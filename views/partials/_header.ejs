@@ -1,10 +1,24 @@
-<% if (user) { %>
-  <p> logged in as <%= user %> </p>
-  <form action="/logout" method="POST" style="float:inline">
-    <button type="submit"> Log Out </button>
-  </form>
+<div id="topbar">
+
+  <% if (user) { %>
+    <div id="logged_in">
+      <p id="log_message"> Logged in as <%= user %> </p>
+    </div>
+
+    <div id="topbutton">
+      <form action="/logout" method="POST">
+        <button type="submit"> Log Out </button>
+      </form>
+    </div>
+
+
+
   <% } else { %>
-    <a href="/login"> Login </a>
-    </br>
-    <a href="/register"> Register </a>
-  <% } %>
+    <div id="topbutton">
+      <a href="/login" class="button"> Login </a>
+      <a href="/register" class="button"> Register </a>
+    </div>
+
+    <% } %>
+
+</div>
