@@ -221,7 +221,9 @@ function displayURL(id){
   let allLink = {}
   if (urlDatabase[id]){
     for (let key in urlDatabase[id]){
-      allLink[key] = urlDatabase[id][key]["original"];
+      allLink[key] = {}
+      allLink[key]["original"] = urlDatabase[id][key]["original"];
+      allLink[key]["uniques"] = Object.keys(urlDatabase[id][key]["visitors"]).length
     }
     return allLink;
   } else {
