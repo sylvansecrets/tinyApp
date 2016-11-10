@@ -308,6 +308,4 @@ function timestampToDate (time){
   if (min < 10) { min = "0" + min.toString()};
   if (sec < 10) { sec = "0" + sec.toString()};
   return `${year}-${month}-${date},${hour}:${min}:${sec}`
-
-
 }
