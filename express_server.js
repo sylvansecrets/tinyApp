@@ -79,10 +79,9 @@ app.post("/login", (req, res) => {
   } else {
     for (var id in usersDatabase){
       let email = usersDatabase[id]["email"];
-      // let password = usersDatabase[id]["password"];
       let passwordMatch = bcrypt.compareSync(req.body.password, usersDatabase[id]["password"])
       if (email == req.body.email && passwordMatch){
-        req.session.user_id = id //("user_id", id, {maxAge: 86400000});
+        req.session.user_id = id
         res.redirect("/urls");
       } else {
         res.redirect("/login/failed");
@@ -134,13 +133,6 @@ app.get("/u/:shortURL", (req,res) => {
   } else {
     res.status(404).send("That is not a valid short link");
   }
-  // let shortURL = req.params.shortURL;
-  // if (urlDatabase[shortURL]){
-  //   let longURL = urlDatabase[shortURL]
-  //   res.redirect(longURL);
-  // }  else {
-  //   res.end("That url is not available")
-  // }
 });
 
 
