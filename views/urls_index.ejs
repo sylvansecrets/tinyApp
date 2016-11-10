@@ -11,9 +11,14 @@
   <ul>
       <% Object.keys(urls).forEach((key) => { %>
       <li>
-        <%= key %> --> <a href = <%= urls[key] %>> <%= urls[key] %> </a>
+        <%= key %> --> <a href = <%= urls[key]["original"] %>> <%= urls[key]["original"] %> </a>
+
+        <p> Unique visits: <%= urls[key]["uniques"] %>
+
         <a href=<%= `/urls/${key}` %> > Edit </a>
+
         <form action=<%= `/urls/${key}/delete?_method=DELETE` %> method="POST" style="float:inline">
+
           <button type="submit"> Delete </button>
         </form>
       </li>
