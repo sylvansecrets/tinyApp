@@ -19,6 +19,14 @@
       <input type="submit" value="Submit">
     </form>
 
+    <div class = "failure">
+      <% if (failure) { %>
+        <p> The entered address was not a valid http or https uri </p>
+      <% } %>
+     </div>
+
   </div>
+
+
   </body>
 </html>
