@@ -153,14 +153,20 @@ app.get("/urls", (req, res) => {
 
 // returns the form for adding a new shortened url
 app.get("/urls/new", (req, res) => {
-  res.render("urls_new");
+  res.render("urls_new", {failure: false});
 });
 
 // adds a key: value pair to urlDatabase
 app.post("/urls", (req, res) => {
   let rand = generateRandomString();
-  addURL(req.session.user_id, rand, req.body.longURL);
+  const valid = require("valid-url");
+  console.log(valid.isWebUri(req.body.longURL));
+  if (valid.isWebUri(req.body.longURL)){
+    addURL(req.session.user_id, rand, req.body.longURL);
   res.redirect(`urls/${rand}`);
+  } else {
+  res.redirect("urls/invalid");
+  }
 });
 
 app.delete("/urls/:shortURL/delete", (req, res) => {
@@ -174,6 +180,12 @@ app.delete("/urls/:shortURL/delete", (req, res) => {
 app.put("/urls/:shortURL/replace", (req, res) => {
   replaceURL(req.session.user_id, req.params.shortURL, req.body.longURL);
   res.redirect("/urls");
+});
+
+//
+app.get("/urls/invalid", (req, res) => {
+  // res.redirect("/urls/new", {failure: true});
+  res.render("urls_new", {failure: true});
 });
 
 // retrieves the particular key: value pair from urlDatabase
