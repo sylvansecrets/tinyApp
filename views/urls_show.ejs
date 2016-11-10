@@ -7,15 +7,25 @@
   <header>
     <% include ./partials/_header.ejs %>
   </header>
-  <ul>
-    <li>
+<!--   <ul>
+    <li> -->
       <%= shortened %> : <%= original %>
       <form action=<%= `/urls/${shortened}/replace?_method=PUT` %> method="POST" style="margin:30px;">
         <label for="longURL">Update the URL:</label>
         <input id="longURL" type="text" name="longURL" placeholder="http://" style="width: 300px">
         <input type="submit" value="Submit">
       </form>
-    </li>
+<!--     </li>
+  </ul> -->
+  Visitor information
+  <ul>
+    <% Object.keys(visitorData).forEach((visitor) => { %>
+      <li>
+        <%= `Unique ID ${visitor}` %> at <%= visitorData[visitor] %>
+      </li>
+    <% }); %>
   </ul>
+
+
 </body>
 </html>
