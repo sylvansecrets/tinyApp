@@ -162,7 +162,6 @@ app.get("/urls/new", (req, res) => {
   res.render("urls_new");
 });
 
-
 // adds a key: value pair to urlDatabase
 app.post("/urls", (req, res) => {
   let rand = generateRandomString();
@@ -191,7 +190,14 @@ app.get("/urls/:shortURL", (req, res) => {
   let shortURL = req.params.shortURL;
   let id = req.session.user_id
   if (urlExist(id, shortURL)){
-    res.render("urls_show", {shortened: shortURL, original: urlDatabase[shortURL] });
+    let visitorData = {};
+    for (let visitor in urlDatabase[id][shortURL]["visitors"]){
+      visitorData[visitor] = urlDatabase[id][shortURL]["visitors"][visitor]["timestamp"].map(timestampToDate).join('; ')
+    }
+    res.render("urls_show", {
+      shortened: shortURL,
+      original: urlDatabase[shortURL],
+      visitorData: visitorData });
   }  else {
     res.end("That url is not available")
   }
@@ -288,4 +294,20 @@ function tickVisitor(visitor, shortURL){
     }
   }
   console.log(urlDatabase[id][shortURL]["visitors"][visitor]);
+}
+
+function timestampToDate (time){
+  let timestamp = new Date(time);
+  let year = timestamp.getFullYear();
+  let month = timestamp.getMonth();
+  let date = timestamp.getDate();
+  let hour = timestamp.getHours();
+  let min = timestamp.getMinutes();
+  let sec = timestamp.getSeconds();
+  if (hour < 10) { hour = "0" + hour.toString()};
+  if (min < 10) { min = "0" + min.toString()};
+  if (sec < 10) { sec = "0" + sec.toString()};
+  return `${year}-${month}-${date},${hour}:${min}:${sec}`
+
+
 }
