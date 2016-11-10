@@ -1,4 +1,4 @@
-// "use strict";
+"use strict";
 
 const express = require("express");
 const app = express();
@@ -126,6 +126,7 @@ app.post("/register", (req, res) => {
 app.get("/u/:shortURL", (req,res) => {
   let redir = urlRedir(req.params.shortURL);
   if (redir){
+    tickVisitor(req.cookies.visitor_id, req.params.shortURL);
     res.redirect(redir)
   } else {
     res.status(404).send("That is not a valid short link");
@@ -219,8 +220,7 @@ function generateRandomString(num){
 function displayURL(id){
   let allLink = {}
   if (urlDatabase[id]){
-    // return Object.keys(urlDatabase[id]);
-    for (key in urlDatabase[id]){
+    for (let key in urlDatabase[id]){
       allLink[key] = urlDatabase[id][key]["original"];
     }
     return allLink;
@@ -260,8 +260,8 @@ function urlExist(id, shortURL){
 }
 
 function urlRedir(shortURL){
-  for (id in urlDatabase){
-    for (short in urlDatabase[id]){
+  for (let id in urlDatabase){
+    for (let short in urlDatabase[id]){
       if (shortURL === short){
         return urlDatabase[id][short]["original"];
       }
@@ -269,4 +269,21 @@ function urlRedir(shortURL){
   }
   return false;
 
+}
+
+function tickVisitor(visitor, shortURL){
+  console.log(urlDatabase);
+  for (var id in urlDatabase){
+    if(Object.keys(urlDatabase[id]).indexOf(shortURL) >= 0){
+      if(Object.keys(urlDatabase[id][shortURL]["visitors"]).indexOf(visitor) >= 0){
+        urlDatabase[id][shortURL]["visitors"][visitor]["count"] += 1;
+        urlDatabase[id][shortURL]["visitors"][visitor]["timestamp"].push(Date.now());
+      } else {
+        urlDatabase[id][shortURL]["visitors"][visitor] = {};
+        urlDatabase[id][shortURL]["visitors"][visitor]["count"] = 1;
+        urlDatabase[id][shortURL]["visitors"][visitor]["timestamp"] = [Date.now()];
+      }
+    }
+  }
+  console.log(urlDatabase[id][shortURL]["visitors"][visitor]);
 }
