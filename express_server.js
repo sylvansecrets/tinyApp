@@ -63,17 +63,29 @@ app.use(function(req, res, next) {
 
 // returns the home page
 app.get("/", (req, res) => {
+  if (loggedIn(req.session.user_id)){
+    res.redirect("/urls");
+  } else {
   res.render("home");
+  }
 });
 
 // handles GET calls to /login
 // attempt generates a warning message if true
 app.get("/login", (req, res) => {
-  res.render("login", {attempt: false, prompt: false});
+  if (loggedIn(req.session.user_id)){
+    res.redirect("/urls");
+  } else {
+    res.render("login", {attempt: false, prompt: false});
+  }
 })
 
 app.get("/login/failed", (req, res) => {
-  res.render("login", {attempt: true, prompt: false});
+  if (loggedIn(req.session.user_id)){
+    res.redirect("/urls");
+  } else {
+    res.render("login", {attempt: true, prompt: false});
+  }
 })
 
 app.get("/login/unauthorized", (req, res) => {
@@ -82,17 +94,21 @@ app.get("/login/unauthorized", (req, res) => {
 
 // Logs in a user
 app.post("/login", (req, res) => {
-  if (Object.keys(usersDatabase).length === 0) {
-    res.redirect("/login/failed")
+  if (loggedIn(req.session.user_id)){
+    res.redirect("/urls");
   } else {
-    for (var id in usersDatabase){
-      let email = usersDatabase[id]["email"];
-      let passwordMatch = bcrypt.compareSync(req.body.password, usersDatabase[id]["password"])
-      if (email == req.body.email && passwordMatch){
-        req.session.user_id = id
-        res.redirect("/urls");
-      } else {
-        res.redirect("/login/failed");
+    if (Object.keys(usersDatabase).length === 0) {
+      res.redirect("/login/failed")
+    } else {
+      for (var id in usersDatabase){
+        let email = usersDatabase[id]["email"];
+        let passwordMatch = bcrypt.compareSync(req.body.password, usersDatabase[id]["password"])
+        if (email == req.body.email && passwordMatch){
+          req.session.user_id = id
+          res.redirect("/urls");
+        } else {
+          res.redirect("/login/failed");
+        }
       }
     }
   }
@@ -312,4 +328,8 @@ function timestampToDate (time){
   if (min < 10) { min = "0" + min.toString()};
   if (sec < 10) { sec = "0" + sec.toString()};
   return `${year}-${month}-${date},${hour}:${min}:${sec}`
+}
+
+function loggedIn(user_id){
+  return Object.keys(usersDatabase).indexOf(user_id) >= 0
 }
