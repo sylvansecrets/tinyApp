@@ -13,6 +13,9 @@ const methodOverride = require('method-override');
 // sets the view engine to ejs
 app.set("view engine", "ejs");
 
+// sets the static assets to /public
+app.use(express.static(__dirname + "/public"));
+
 // sets the body parser to body-parser
 app.use(bodyParser.urlencoded({extended: true}));
 
@@ -55,7 +58,7 @@ app.use(function(req, res, next) {
 // returns the root
 // at the moment empty
 app.get("/", (req, res) => {
-  res.end("Hello!");
+  res.render("home");
 });
 
 app.get("/login", (req, res) => {
@@ -97,12 +100,13 @@ app.get("/register", (req, res) => {
   res.render("register", {})
 });
 
+// registers a user if both fields are filled out and the email does not conflict
 app.post("/register", (req, res) => {
   let randID = Math.random().toString(10).substr(2,10);
   let tempEmail = [];
   if (Object.keys(usersDatabase).length > 0){
     for (var id in usersDatabase){
-      tempEmail.push(usersDatabase[id][email]);
+      tempEmail.push(usersDatabase[id]["email"]);
     }
   }
   if (!req.body.email && !req.body.password){
@@ -114,11 +118,10 @@ app.post("/register", (req, res) => {
       email: req.body.email,
       password: bcrypt.hashSync(req.body.password, saltRounds)
     }
-    console.log(usersDatabase);
     req.session.user_id = randID;
     res.redirect("/urls");
   } else {
-    res.status(400).send({ error: "conflict with existing email"});
+    res.status(400).send({ error: "missing password or conflict with existing email"});
   }
 });
 
@@ -153,7 +156,6 @@ app.use("/", (req, res, next) => {
 
 // the /urls page shows the entire database
 app.get("/urls", (req, res) => {
-  console.log(displayURL(req.session.user_id));
   res.render("urls_index", {urls: displayURL(req.session.user_id)});
 });
 
@@ -170,7 +172,6 @@ app.post("/urls", (req, res) => {
 });
 
 app.delete("/urls/:shortURL/delete", (req, res) => {
-  console.log("attempting to delete", req.params.shortURL, "from", req.session.user_id);
   let shortURL = req.params.shortURL;
   deleteURL(req.session.user_id, shortURL);
   res.redirect("/urls");
@@ -179,7 +180,6 @@ app.delete("/urls/:shortURL/delete", (req, res) => {
 // replaces the longURL with a different one
 // then redirects to the /urls page
 app.put("/urls/:shortURL/replace", (req, res) => {
-  console.log("user", req.session.user_id);
   replaceURL(req.session.user_id, req.params.shortURL, req.body.longURL);
   res.redirect("/urls");
 });
@@ -196,7 +196,7 @@ app.get("/urls/:shortURL", (req, res) => {
     }
     res.render("urls_show", {
       shortened: shortURL,
-      original: urlDatabase[shortURL],
+      original: urlDatabase[id][shortURL]["original"],
       visitorData: visitorData });
   }  else {
     res.end("That url is not available")
@@ -248,22 +248,17 @@ function addURL(id, shortURL, longURL){
 }
 
 function deleteURL(id, shortURL){
-  console.log("Attempting to delete from", id, shortURL);
   if (urlExist(id, shortURL)){
-    console.log(urlDatabase);
     delete (urlDatabase[id][shortURL]);
-    console.log(urlDatabase);
   }
 }
 
 function replaceURL(id, shortURL, longURL){
-  console.log("Attempting to replace", id, shortURL, longURL);
   if (urlExist(id, shortURL)){
     urlDatabase[id][shortURL]["original"] = longURL;
   }
 }
 function urlExist(id, shortURL){
-  console.log("exist check", id, shortURL, urlDatabase);
   return urlDatabase[id] && Object.keys(urlDatabase[id]).indexOf(shortURL) >= 0;
 }
 
@@ -280,7 +275,6 @@ function urlRedir(shortURL){
 }
 
 function tickVisitor(visitor, shortURL){
-  console.log(urlDatabase);
   for (var id in urlDatabase){
     if(Object.keys(urlDatabase[id]).indexOf(shortURL) >= 0){
       if(Object.keys(urlDatabase[id][shortURL]["visitors"]).indexOf(visitor) >= 0){
@@ -293,7 +287,6 @@ function tickVisitor(visitor, shortURL){
       }
     }
   }
-  console.log(urlDatabase[id][shortURL]["visitors"][visitor]);
 }
 
 function timestampToDate (time){

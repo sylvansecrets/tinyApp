@@ -2,27 +2,34 @@
 <html lang="en">
 <head>
   <title>TinyApp</title>
+  <link rel="stylesheet" href="/css/style.css" />
 </head>
 <body>
   <header>
     <% include ./partials/_header.ejs %>
   </header>
 
-  <ul>
-      <% Object.keys(urls).forEach((key) => { %>
-      <li>
-        <%= key %> --> <a href = <%= urls[key]["original"] %>> <%= urls[key]["original"] %> </a>
+  <div id="sidenav">
+    <% include ./partials/_sidenav_user.ejs %>
+  </div>
 
-        <p> Unique visits: <%= urls[key]["uniques"] %>
+  <div id="main">
+    <ul>
+        <% Object.keys(urls).forEach((key) => { %>
+        <li>
+          <%= key %> --> <a href = <%= urls[key]["original"] %>> <%= urls[key]["original"] %> </a>
 
-        <a href=<%= `/urls/${key}` %> > Edit </a>
+          Unique visits: <%= urls[key]["uniques"] %>
 
-        <form action=<%= `/urls/${key}/delete?_method=DELETE` %> method="POST" style="float:inline">
+          <a href=<%= `/urls/${key}` %> > Edit </a>
 
-          <button type="submit"> Delete </button>
-        </form>
-      </li>
-    <% }); %>
-  </ul>
+          <form action=<%= `/urls/${key}/delete?_method=DELETE` %> method="POST" style="float:inline">
+
+            <button type="submit"> Delete </button>
+          </form>
+        </li>
+      <% }); %>
+    </ul>
+  </div>
 </body>
 </html>

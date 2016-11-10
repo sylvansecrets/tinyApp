@@ -1,0 +1,17 @@
+body {
+  background-colour: blue;
+}
+
+div.sidenav {
+  float: left;
+  width: 15%;
+}
+
+div.header {
+  height: 15%;
+  width: 100%;
+}
+
+div.main {
+  float: left;
+}

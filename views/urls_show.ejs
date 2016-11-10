@@ -4,27 +4,37 @@
   <title>TinyApp</title>
 </head>
 <body>
+
   <header>
     <% include ./partials/_header.ejs %>
   </header>
-<!--   <ul>
-    <li> -->
-      <%= shortened %> : <%= original %>
-      <form action=<%= `/urls/${shortened}/replace?_method=PUT` %> method="POST" style="margin:30px;">
-        <label for="longURL">Update the URL:</label>
-        <input id="longURL" type="text" name="longURL" placeholder="http://" style="width: 300px">
-        <input type="submit" value="Submit">
-      </form>
-<!--     </li>
-  </ul> -->
-  Visitor information
-  <ul>
-    <% Object.keys(visitorData).forEach((visitor) => { %>
-      <li>
-        <%= `Unique ID ${visitor}` %> at <%= visitorData[visitor] %>
-      </li>
-    <% }); %>
-  </ul>
+
+  <div id="sidenav">
+    <% include ./partials/_sidenav_user.ejs %>
+  </div>
+
+  <div id="main">
+
+    <%= shortened %> : <%= original %>
+    <form action=<%= `/urls/${shortened}/replace?_method=PUT` %> method="POST" style="margin:30px;">
+      <label for="longURL">Update the URL:</label>
+      <input id="longURL" type="text" name="longURL" placeholder="http://" style="width: 300px">
+      <input type="submit" value="Submit">
+    </form>
+
+    <h3>
+      Visitor information
+    </h3>
+
+    <ul>
+      <% Object.keys(visitorData).forEach((visitor) => { %>
+        <li>
+          <%= `Unique ID ${visitor}` %> at <%= visitorData[visitor] %>
+        </li>
+      <% }); %>
+    </ul>
+
+  </div>
 
 
 </body>
