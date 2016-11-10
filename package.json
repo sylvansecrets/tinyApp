@@ -15,6 +15,7 @@
     "cookie-session": "^2.0.0-alpha.1",
     "ejs": "^2.5.2",
     "express": "^4.14.0",
-    "method-override": "^2.3.6"
+    "method-override": "^2.3.6",
+    "valid-url": "^1.0.9"
   }
 }
