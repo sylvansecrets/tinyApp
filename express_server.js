@@ -202,7 +202,9 @@ app.get("/urls", (req, res) => {
 
 // returns the form for adding a new shortened url
 app.get("/urls/new", (req, res) => {
-  res.render("urls_new", {failure: false});
+  res.render("urls_new", {
+    'warning_new': req.flash('warning_new')
+  });
 });
 
 // adds a key: value pair to urlDatabase
@@ -213,7 +215,8 @@ app.post("/urls", (req, res) => {
     addURL(req.session.user_id, rand, req.body.longURL);
   res.redirect(`/urls/${rand}`);
   } else {
-  res.redirect("/urls/invalid");
+    req.flash('warning_new', 'The entered address was not a valid http or https uri.');
+    res.redirect("/urls/new");
   }
 });
 
@@ -232,16 +235,15 @@ app.put("/urls/:shortURL/replace", (req, res) => {
     replaceURL(req.session.user_id, req.params.shortURL, req.body.longURL);
     res.redirect(`/urls/${req.params.shortURL}`);
   } else {
-    // res.cookie("replaceFail", "true", {maxAge:3000});
     req.flash('replace_failure', 'The replacement string entered was not a valid http or https uri')
     res.redirect(`/urls/${req.params.shortURL}`);
   }
 });
 
 //
-app.get("/urls/invalid", (req, res) => {
-  res.render("urls_new", {failure: true});
-});
+// app.get("/urls/invalid", (req, res) => {
+//   res.render("urls_new", {failure: true});
+// });
 
 // retrieves the particular key: value pair from urlDatabase
 // allows for editing of links
@@ -258,10 +260,8 @@ app.get("/urls/:shortURL", (req, res) => {
       original: urlDatabase[id][shortURL]["original"],
       visitorData: visitorData,
       created: timestampToDate(urlDatabase[id][shortURL]["added"]),
-      // failure: req.cookies.replaceFail,
       failure: req.flash('replace_failure')
     });
-    req.cookies.replaceFail = null;
   }  else {
     res.end("That url is not available")
   }
@@ -277,11 +277,12 @@ app.listen(PORT, () => {
 });
 
 //--------------------------helper functions ---------------
-// generates a random alphanumeric string of length 16
+// generates a random alphanumeric string
 function generateRandomString(num=6){
   return Math.random().toString(36).substr(2,num);
 }
 
+// displays all the shortURL longURL pairs for a given user
 function displayURL(id){
   let allLink = {}
   if (urlDatabase[id]){
@@ -374,7 +375,7 @@ function loggedIn(user_id){
   return Object.keys(usersDatabase).indexOf(user_id) !== -1
 }
 
-//
+// sets the conditionals for registration
 function branch(tempEmail, email, password){
   if (!email && !password){
     return "missing both";

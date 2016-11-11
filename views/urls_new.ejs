@@ -27,8 +27,8 @@
     </form>
 
     <div class = "failure">
-      <% if (failure) { %>
-        <p class="warning"> The entered address was not a valid http or https uri. </p>
+      <% if (warning_new) { %>
+        <p class="warning"> <%=warning_new%> </p>
       <% } %>
      </div>
 
