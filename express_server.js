@@ -195,7 +195,7 @@ app.post("/urls", (req, res) => {
 });
 
 // deletes a shortURL longURL pair
-app.delete("/urls/:shortURL/delete", (req, res) => {
+app.delete("/urls/:shortURL", (req, res) => {
   let shortURL = req.params.shortURL;
   deleteURL(req.session.user_id, shortURL);
   res.redirect("/urls");
@@ -252,8 +252,7 @@ app.listen(PORT, () => {
 
 //--------------------------helper functions ---------------
 // generates a random alphanumeric string of length 16
-function generateRandomString(num){
-  var num = num || 6;
+function generateRandomString(num=6){
   return Math.random().toString(36).substr(2,num);
 }
 
