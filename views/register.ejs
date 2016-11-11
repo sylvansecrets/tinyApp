@@ -27,6 +27,10 @@
           <input type="password" name="password">
           <input type="submit" value="Submit">
         </form>
+    <% if (warning_register) { %>
+      <p class='warning'> <%=missing_password%> </p>
+    <% } %>
+
     </div>
 </div>
 

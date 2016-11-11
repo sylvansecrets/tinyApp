@@ -5,6 +5,7 @@ const app = express();
 const bodyParser = require("body-parser");
 const cookieSession = require('cookie-session');
 const cookieParser = require('cookie-parser');
+const flash = require('connect-flash')
 const PORT = process.env.PORT || 3000;
 const bcrypt = require('bcrypt');
 const saltRounds = 10;
@@ -39,6 +40,9 @@ app.use(function(req, res, next) {
 // sets method overwrite
 app.use(methodOverride('_method'));
 
+// enables flash messages
+app.use(flash());
+
 // urlDatabase is the in-memory database
 // in the format
 // id: {url:, visitors:{unique_id: times_visited}}
@@ -46,7 +50,7 @@ var urlDatabase = {};
 
 // usersDatabase is an in-memory database
 // in the format
-// id: {id, shortURL: longURL, visitors: {visitor: {count, timestamp}}}
+// id: {id, shortURL: longURL, added, visitors: {visitor: {count, timestamp}}}
 const usersDatabase = {};
 
 // sets the username to res.locals.user if logged in
@@ -122,7 +126,9 @@ app.post("/logout", (req, res) => {
 
 // Handles GET call to /register
 app.get("/register", (req, res) => {
-  res.render("register", {})
+  res.render("register", {
+    'warning_register': req.flash('warning_register')
+  })
 });
 
 // registers a user if both fields are filled out and the email does not conflict
@@ -134,11 +140,26 @@ app.post("/register", (req, res) => {
       tempEmail.push(usersDatabase[id]["email"]);
     }
   }
-  if (!req.body.email && !req.body.password){
-    res.status(400).send({ error: "please fill in both the email and password fields"});
-  }
-  if (tempEmail.indexOf(req.body.email) < 0 && req.body.password){
-    bcrypt.hash(req.body.password, saltRounds, (err, hash) => {
+  console.log(branch(tempEmail, req.body.email, req.body.password))
+  switch (branch(tempEmail, req.body.email, req.body.password)){
+    case "missing both":
+      req.flash('warning_register', 'please fill in both the email and the password fields.');
+      res.status(400).redirect("/register");
+      break;
+    case "missing email":
+      req.flash('warning_register', 'please fill in the email field.');
+      res.status(400).redirect("/register");
+      break;
+    case "missing password":
+      req.flash('warning_register', 'please fill in the password field');
+      res.status(400).redirect("/register");
+      break;
+    case "conflict":
+      req.flash('warning_register', 'that email is already in use');
+      res.status(400).redirect("/register");
+      break;
+    case "all clear":
+      bcrypt.hash(req.body.password, saltRounds, (err, hash) => {
       usersDatabase[randID] = {
         id: randID,
         email: req.body.email,
@@ -146,11 +167,10 @@ app.post("/register", (req, res) => {
       }
       req.session.user_id = randID;
       res.redirect("urls");
-    })
-  } else {
-    res.status(400).send({ error: "missing password or conflict with existing email"});
+    });
   }
 });
+
 
 // redirects to the longURL previously entered
 app.get("/u/:shortURL", (req,res) => {
@@ -212,7 +232,8 @@ app.put("/urls/:shortURL/replace", (req, res) => {
     replaceURL(req.session.user_id, req.params.shortURL, req.body.longURL);
     res.redirect(`/urls/${req.params.shortURL}`);
   } else {
-    res.cookie("replaceFail", "true", {maxAge:3000});
+    // res.cookie("replaceFail", "true", {maxAge:3000});
+    req.flash('replace_failure', 'The replacement string entered was not a valid http or https uri')
     res.redirect(`/urls/${req.params.shortURL}`);
   }
 });
@@ -237,7 +258,9 @@ app.get("/urls/:shortURL", (req, res) => {
       original: urlDatabase[id][shortURL]["original"],
       visitorData: visitorData,
       created: timestampToDate(urlDatabase[id][shortURL]["added"]),
-      failure: req.cookies.replaceFail });
+      // failure: req.cookies.replaceFail,
+      failure: req.flash('replace_failure')
+    });
     req.cookies.replaceFail = null;
   }  else {
     res.end("That url is not available")
@@ -349,4 +372,21 @@ function timestampToDate (time){
 // checks if the user is logged in
 function loggedIn(user_id){
   return Object.keys(usersDatabase).indexOf(user_id) !== -1
+}
+
+//
+function branch(tempEmail, email, password){
+  if (!email && !password){
+    return "missing both";
+  }
+  if (!email){
+    return "missing email";
+  }
+  if (!password){
+    return "missing password";
+  }
+  if (tempEmail.indexOf(email) !== -1){
+    return "conflict";
+  }
+  return "all clear";
 }
