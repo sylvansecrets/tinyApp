@@ -101,13 +101,21 @@ app.post("/login", (req, res) => {
     } else {
       for (var id in usersDatabase){
         let email = usersDatabase[id]["email"];
-        let passwordMatch = bcrypt.compareSync(req.body.password, usersDatabase[id]["password"])
-        if (email == req.body.email && passwordMatch){
-          req.session.user_id = id
-          res.redirect("/urls");
-        } else {
-          res.redirect("/login/failed");
-        }
+        bcrypt.compare(req.body.password, usersDatabase[id]["password"], (err, passwordMatch) => {
+          if (email === req.body.email && passwordMatch){
+            req.session.user_id = id;
+            res.redirect("/urls");
+          } else {
+            res.redirect("/login/failed")
+          }
+        })
+        // let passwordMatch = bcrypt.compareSync(req.body.password, usersDatabase[id]["password"])
+        // if (email == req.body.email && passwordMatch){
+        //   req.session.user_id = id
+        //   res.redirect("/urls");
+        // } else {
+        //   res.redirect("/login/failed");
+        // }
       }
     }
   }
@@ -137,13 +145,22 @@ app.post("/register", (req, res) => {
     res.status(400).send({ error: "please fill in both the email and password fields"});
   }
   if (tempEmail.indexOf(req.body.email) < 0 && req.body.password){
-    usersDatabase[randID] = {
-      id: randID,
-      email: req.body.email,
-      password: bcrypt.hashSync(req.body.password, saltRounds)
-    }
-    req.session.user_id = randID;
-    res.redirect("/urls");
+    bcrypt.hash(req.body.password, saltRounds, (err, hash) => {
+      usersDatabase[randID] = {
+        id: randID,
+        email: req.body.email,
+        password: bcrypt.hashSync(req.body.password, saltRounds)
+      }
+      req.session.user_id = randID;
+      res.redirect("urls");
+    })
+    // usersDatabase[randID] = {
+    //   id: randID,
+    //   email: req.body.email,
+    //   password: bcrypt.hashSync(req.body.password, saltRounds)
+    // }
+    // req.session.user_id = randID;
+    // res.redirect("/urls");
   } else {
     res.status(400).send({ error: "missing password or conflict with existing email"});
   }
