@@ -52,7 +52,7 @@ const usersDatabase = {};
 // sets the username to res.locals.user if logged in
 app.use(function(req, res, next) {
   let id = req.session.user_id;
-  if (Object.keys(usersDatabase).indexOf(id) >= 0){
+  if (Object.keys(usersDatabase).indexOf(id) !== -1){
     res.locals.user = usersDatabase[id]["email"];
   } else {
     res.locals.user = null;
@@ -165,7 +165,7 @@ app.get("/u/:shortURL", (req,res) => {
 
 // redirects if the user is not logged in
 app.use("/", (req, res, next) => {
-  if (Object.keys(usersDatabase).indexOf(req.session.user_id) >= 0){
+  if (Object.keys(usersDatabase).indexOf(req.session.user_id) !== -1){
     next();
   } else {
     res.status(401).redirect("/login/unauthorized");
@@ -296,7 +296,7 @@ function replaceURL(id, shortURL, longURL){
 
 // checks if the shortURL given is in the database
 function urlExist(id, shortURL){
-  return urlDatabase[id] && Object.keys(urlDatabase[id]).indexOf(shortURL) >= 0;
+  return urlDatabase[id] && Object.keys(urlDatabase[id]).indexOf(shortURL) !== -1;
 }
 
 // gives the redirect url
@@ -315,8 +315,8 @@ function urlRedir(shortURL){
 // increases the visitor count by 1
 function tickVisitor(visitor, shortURL){
   for (var id in urlDatabase){
-    if(Object.keys(urlDatabase[id]).indexOf(shortURL) >= 0){
-      if(Object.keys(urlDatabase[id][shortURL]["visitors"]).indexOf(visitor) >= 0){
+    if(Object.keys(urlDatabase[id]).indexOf(shortURL) !== -1){
+      if(Object.keys(urlDatabase[id][shortURL]["visitors"]).indexOf(visitor) !== -1){
         urlDatabase[id][shortURL]["visitors"][visitor]["count"] += 1;
         urlDatabase[id][shortURL]["visitors"][visitor]["timestamp"].push(Date.now());
       } else {
@@ -345,5 +345,5 @@ function timestampToDate (time){
 
 // checks if the user is logged in
 function loggedIn(user_id){
-  return Object.keys(usersDatabase).indexOf(user_id) >= 0
+  return Object.keys(usersDatabase).indexOf(user_id) !== -1
 }
