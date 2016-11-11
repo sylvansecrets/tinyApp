@@ -72,9 +72,9 @@ a.button:active{
 button {
   background-color: #eeeeee;
   border-radius: 3px;
-  padding: 3px;
-  width: 70px;
-  height: 35px;
+  padding-top: 4px;
+  width: 72px;
+  height: 27px;
   font-weight: bold;
   border: none;
   text-align: center;

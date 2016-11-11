@@ -187,7 +187,6 @@ app.get("/urls/new", (req, res) => {
 app.post("/urls", (req, res) => {
   let rand = generateRandomString();
   const valid = require("valid-url");
-  console.log(valid.isWebUri(req.body.longURL));
   if (valid.isWebUri(req.body.longURL)){
     addURL(req.session.user_id, rand, req.body.longURL);
   res.redirect(`urls/${rand}`);

@@ -23,22 +23,39 @@
 
       <p> These are the links you have submitted </p>
 
-      <ul>
+      <table>
+          <tr>
+            <th> ShortURL </th>
+            <th> Original URL </th>
+            <th> Unique Visits </th>
+          </tr>
           <% Object.keys(urls).forEach((key) => { %>
-          <li>
-            <%= key %> --> <a href = <%= urls[key]["original"] %>> <%= urls[key]["original"] %> </a>
 
-            Unique visits: <%= urls[key]["uniques"] %>
 
-            <a href=<%= `/urls/${key}` %> class="button"> Edit </a>
-
-            <form action=<%= `/urls/${key}/delete?_method=DELETE` %> method="POST">
-              <button type="submit"> Delete </button>
-            </form>
-          </li>
+          <tr>
+            <td>
+              <%= key %>
+            </td>
+            <td>
+              <a href = <%= urls[key]["original"] %>> <%= urls[key]["original"] %> </a>
+            </td>
+            <td>
+              <%= urls[key]["uniques"] %>
+            </td>
+            <td>
+              <form action=<%= `/urls/${key}` %>>
+                <button type="submit"> Edit </button>
+              </form>
+            </td>
+            <td>
+              <form action=<%= `/urls/${key}/delete?_method=DELETE` %> method="POST">
+                <button type="submit"> Delete </button>
+              </form>
+            </td>
+          </tr>
         <% }); %>
 
-      </ul>
+      </table>
 
     </div>
 
