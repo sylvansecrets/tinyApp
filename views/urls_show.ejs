@@ -23,6 +23,13 @@
       <input type="submit" value="Submit">
     </form>
 
+    <% if (failure) { %>
+      <p class='warning'> The replacement uri submittied was not a valid http uri or https uri </p>
+    <% } %>
+
+    <h5>
+      Created: <%= created %>
+
     <h3>
       Visitor information
     </h3>
@@ -34,6 +41,7 @@
         </li>
       <% }); %>
     </ul>
+
 
   </div>
 

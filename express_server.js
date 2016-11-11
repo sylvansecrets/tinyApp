@@ -60,7 +60,6 @@ app.use(function(req, res, next) {
   next();
 })
 
-
 // returns the home page
 app.get("/", (req, res) => {
   if (loggedIn(req.session.user_id)){
@@ -189,9 +188,9 @@ app.post("/urls", (req, res) => {
   const valid = require("valid-url");
   if (valid.isWebUri(req.body.longURL)){
     addURL(req.session.user_id, rand, req.body.longURL);
-  res.redirect(`urls/${rand}`);
+  res.redirect(`/urls/${rand}`);
   } else {
-  res.redirect("urls/invalid");
+  res.redirect("/urls/invalid");
   }
 });
 
@@ -205,8 +204,14 @@ app.delete("/urls/:shortURL/delete", (req, res) => {
 // replaces the longURL with a different one
 // then redirects to the /urls page
 app.put("/urls/:shortURL/replace", (req, res) => {
-  replaceURL(req.session.user_id, req.params.shortURL, req.body.longURL);
-  res.redirect("/urls");
+  const valid = require("valid-url");
+  if (valid.isWebUri(req.body.longURL)){
+    replaceURL(req.session.user_id, req.params.shortURL, req.body.longURL);
+    res.redirect(`/urls/${req.params.shortURL}`);
+  } else {
+    res.cookie("replaceFail", "true", {maxAge:3000});
+    res.redirect(`/urls/${req.params.shortURL}`);
+  }
 });
 
 //
@@ -227,7 +232,10 @@ app.get("/urls/:shortURL", (req, res) => {
     res.render("urls_show", {
       shortened: shortURL,
       original: urlDatabase[id][shortURL]["original"],
-      visitorData: visitorData });
+      visitorData: visitorData,
+      created: timestampToDate(urlDatabase[id][shortURL]["added"]),
+      failure: req.cookies.replaceFail });
+    req.cookies.replaceFail = null;
   }  else {
     res.end("That url is not available")
   }
@@ -269,7 +277,8 @@ function addURL(id, shortURL, longURL){
   }
   urlDatabase[id][shortURL] = {
     original: longURL,
-    visitors: {}
+    visitors: {},
+    added: Date.now(),
   };
 }
 
@@ -279,15 +288,19 @@ function deleteURL(id, shortURL){
   }
 }
 
+// replaces the old longURL with a new one
 function replaceURL(id, shortURL, longURL){
   if (urlExist(id, shortURL)){
     urlDatabase[id][shortURL]["original"] = longURL;
   }
 }
+
+// checks if the shortURL given is in the database
 function urlExist(id, shortURL){
   return urlDatabase[id] && Object.keys(urlDatabase[id]).indexOf(shortURL) >= 0;
 }
 
+// gives the redirect url
 function urlRedir(shortURL){
   for (let id in urlDatabase){
     for (let short in urlDatabase[id]){
@@ -300,6 +313,7 @@ function urlRedir(shortURL){
 
 }
 
+// increases the visitor count by 1
 function tickVisitor(visitor, shortURL){
   for (var id in urlDatabase){
     if(Object.keys(urlDatabase[id]).indexOf(shortURL) >= 0){
@@ -315,6 +329,7 @@ function tickVisitor(visitor, shortURL){
   }
 }
 
+// converts a timestamp to human readable format
 function timestampToDate (time){
   let timestamp = new Date(time);
   let year = timestamp.getFullYear();
@@ -329,6 +344,7 @@ function timestampToDate (time){
   return `${year}-${month}-${date},${hour}:${min}:${sec}`
 }
 
+// checks if the user is logged in
 function loggedIn(user_id){
   return Object.keys(usersDatabase).indexOf(user_id) >= 0
 }
