@@ -109,13 +109,6 @@ app.post("/login", (req, res) => {
             res.redirect("/login/failed")
           }
         })
-        // let passwordMatch = bcrypt.compareSync(req.body.password, usersDatabase[id]["password"])
-        // if (email == req.body.email && passwordMatch){
-        //   req.session.user_id = id
-        //   res.redirect("/urls");
-        // } else {
-        //   res.redirect("/login/failed");
-        // }
       }
     }
   }
@@ -154,13 +147,6 @@ app.post("/register", (req, res) => {
       req.session.user_id = randID;
       res.redirect("urls");
     })
-    // usersDatabase[randID] = {
-    //   id: randID,
-    //   email: req.body.email,
-    //   password: bcrypt.hashSync(req.body.password, saltRounds)
-    // }
-    // req.session.user_id = randID;
-    // res.redirect("/urls");
   } else {
     res.status(400).send({ error: "missing password or conflict with existing email"});
   }
