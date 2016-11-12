@@ -26,13 +26,12 @@
       <input type="password" name="password">
       <input type="submit" value="Submit">
     </form>
-    <% if (attempt){ %>
-    <p class="warning"> Incorrect email/password combination </p>
-    <% } %>
 
-    <% if (prompt){ %>
-    <p class="warning"> Please log in to access that page </p>
-    <% } %>
+    <div class = "failure">
+      <% if (warning_login) { %>
+        <p class="warning"> <%=warning_login%> </p>
+      <% } %>
+    </div>
 
   </div>
 </div>

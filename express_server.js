@@ -79,23 +79,13 @@ app.get("/login", (req, res) => {
   if (loggedIn(req.session.user_id)){
     res.redirect("/urls");
   } else {
-    res.render("login", {attempt: false, prompt: false});
+    res.render("login", {
+      'warning_login': req.flash('warning_login')
+    });
   }
 })
 
-app.get("/login/failed", (req, res) => {
-  if (loggedIn(req.session.user_id)){
-    res.redirect("/urls");
-  } else {
-    res.render("login", {attempt: true, prompt: false});
-  }
-})
-
-app.get("/login/unauthorized", (req, res) => {
-  res.render("login", {attempt: false, prompt: true});
-})
-
-// Logs in a user
+//Logs in a user
 app.post("/login", (req, res) => {
   if (loggedIn(req.session.user_id)){
     res.redirect("/urls");
@@ -110,13 +100,15 @@ app.post("/login", (req, res) => {
             req.session.user_id = id;
             res.redirect("/urls");
           } else {
-            res.redirect("/login/failed")
+            req.flash('warning_login','That email and password combination is invalid.');
+            res.status(400).redirect("/login");
           }
         })
       }
     }
   }
 });
+
 
 // Logs out a user
 app.post("/logout", (req, res) => {
@@ -140,7 +132,6 @@ app.post("/register", (req, res) => {
       tempEmail.push(usersDatabase[id]["email"]);
     }
   }
-  console.log(branch(tempEmail, req.body.email, req.body.password))
   switch (branch(tempEmail, req.body.email, req.body.password)){
     case "missing both":
       req.flash('warning_register', 'please fill in both the email and the password fields.');
@@ -191,7 +182,8 @@ app.use("/", (req, res, next) => {
   if (Object.keys(usersDatabase).indexOf(req.session.user_id) !== -1){
     next();
   } else {
-    res.status(401).redirect("/login/unauthorized");
+    req.flash('warning_login', "Please log in the view that page.")
+    res.status(401).redirect("/login");
   }
 });
 
@@ -240,10 +232,6 @@ app.put("/urls/:shortURL/replace", (req, res) => {
   }
 });
 
-//
-// app.get("/urls/invalid", (req, res) => {
-//   res.render("urls_new", {failure: true});
-// });
 
 // retrieves the particular key: value pair from urlDatabase
 // allows for editing of links
@@ -263,7 +251,13 @@ app.get("/urls/:shortURL", (req, res) => {
       failure: req.flash('replace_failure')
     });
   }  else {
-    res.end("That url is not available")
+    if (urlRedir(shortURL)){
+      req.flash("warning_new", "Someone has already claimed that short link");
+      res.status(403).redirect("/urls/new");
+    } else {
+      req.flash("warning_new", "That url is not available, would you like to add it?")
+      res.status(401).redirect("/urls/new")
+    }
   }
 });
 
@@ -391,3 +385,4 @@ function branch(tempEmail, email, password){
   }
   return "all clear";
 }
+
