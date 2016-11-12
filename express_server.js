@@ -101,7 +101,7 @@ app.post("/login", (req, res) => {
             res.redirect("/urls");
           } else {
             req.flash('warning_login','That email and password combination is invalid.');
-            res.status(400).redirect("/login");
+            res.status(303).redirect("/login");
           }
         })
       }
@@ -135,19 +135,19 @@ app.post("/register", (req, res) => {
   switch (branch(tempEmail, req.body.email, req.body.password)){
     case "missing both":
       req.flash('warning_register', 'please fill in both the email and the password fields.');
-      res.status(400).redirect("/register");
+      res.status(303).redirect("/register");
       break;
     case "missing email":
       req.flash('warning_register', 'please fill in the email field.');
-      res.status(400).redirect("/register");
+      res.status(303).redirect("/register");
       break;
     case "missing password":
       req.flash('warning_register', 'please fill in the password field');
-      res.status(400).redirect("/register");
+      res.status(303).redirect("/register");
       break;
     case "conflict":
       req.flash('warning_register', 'that email is already in use');
-      res.status(400).redirect("/register");
+      res.status(303).redirect("/register");
       break;
     case "all clear":
       bcrypt.hash(req.body.password, saltRounds, (err, hash) => {
@@ -170,7 +170,7 @@ app.get("/u/:shortURL", (req,res) => {
     tickVisitor(req.cookies.visitor_id, req.params.shortURL);
     res.redirect(redir)
   } else {
-    res.status(404).send("That is not a valid short link");
+    res.status(302).send("That is not a valid short link");
   }
 });
 
@@ -183,7 +183,7 @@ app.use("/", (req, res, next) => {
     next();
   } else {
     req.flash('warning_login', "Please log in the view that page.")
-    res.status(401).redirect("/login");
+    res.status(302).redirect("/login");
   }
 });
 
@@ -253,10 +253,10 @@ app.get("/urls/:shortURL", (req, res) => {
   }  else {
     if (urlRedir(shortURL)){
       req.flash("warning_new", "Someone has already claimed that short link");
-      res.status(403).redirect("/urls/new");
+      res.status(303).redirect("/urls/new");
     } else {
       req.flash("warning_new", "That url is not available, would you like to add it?")
-      res.status(401).redirect("/urls/new")
+      res.status(303).redirect("/urls/new")
     }
   }
 });
