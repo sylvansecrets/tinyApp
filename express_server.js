@@ -91,19 +91,25 @@ app.post("/login", (req, res) => {
     res.redirect("/urls");
   } else {
     if (Object.keys(usersDatabase).length === 0) {
-      res.redirect("/login/failed")
+      res.redirect("/login/failed");
     } else {
       for (var id in usersDatabase){
         let email = usersDatabase[id]["email"];
-        bcrypt.compare(req.body.password, usersDatabase[id]["password"], (err, passwordMatch) => {
-          if (email === req.body.email && passwordMatch){
-            req.session.user_id = id;
-            res.redirect("/urls");
-          } else {
-            req.flash('warning_login','That email and password combination is invalid.');
-            res.status(303).redirect("/login");
-          }
-        })
+        let matched = true;
+        if (email !== req.body.email){
+          let matched = false;
+        } else {
+          bcrypt.compare(req.body.password, usersDatabase[id]["password"], (err, passwordMatch) => {
+            if (passwordMatch && matched){
+              console.log("match")
+              req.session.user_id = id;
+              res.redirect("/urls");
+            } else {
+              req.flash('warning_login','That email and password combination is invalid.');
+              res.status(303).redirect("/login");
+            }
+          })
+        }
       }
     }
   }
